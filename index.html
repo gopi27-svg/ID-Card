@@ -1,93 +1,222 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Modern ID Request Form (Reliable Upload)</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Modern ID Request Form</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-    :root{--primary-color:#007bff;--secondary-color:#6c757d;--background-color:#f4f7f6;--form-bg-color:rgba(255,255,255,0.95);--text-color:#333;--border-color:#ced4da;--error-color:#dc3545}
+    :root{
+      --primary-color:#007bff;
+      --secondary-color:#6c757d;
+      --background-color:#f4f7f6;
+      --form-bg-color:rgba(255,255,255,.95);
+      --text-color:#333;
+      --border-color:#ced4da;
+      --error-color:#dc3545;
+      --success:#28a745;
+    }
     *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:'Poppins',sans-serif;background:var(--background-color);background-image:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);display:flex;justify-content:center;align-items:center;min-height:100vh;padding:2rem;color:var(--text-color)}
-    .form-container{width:100%;max-width:750px;background:var(--form-bg-color);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.1);overflow:hidden;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2)}
-    #id-request-form{padding:2.5rem 3rem}
-    .form-header{text-align:center;margin-bottom:2rem}
-    .company-logo{max-width:170px;margin-bottom:0.1rem}
-    .form-header h2{font-size:2rem;font-weight:600;margin-bottom:0.5rem}
+    body{
+      font-family:'Georgia',system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      background:var(--background-color);
+      background-image:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);
+      min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem;color:var(--text-color)
+    }
+    .form-container{width:100%;max-width:780px;background:var(--form-bg-color);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.08);overflow:hidden;border:1px solid rgba(255,255,255,.25);backdrop-filter:blur(6px)}
+    #id-request-form{padding:2rem 2.5rem}
+    .form-header{text-align:center;margin-bottom:1.5rem}
+    .company-logo{max-width:170px;margin-bottom:.1rem}
+    .form-header h2{font-size:1.9rem;font-weight:600;margin-bottom:.35rem}
     .form-header p{color:var(--secondary-color)}
-    .progress-bar{display:flex;justify-content:space-between;list-style:none;margin-bottom:2.5rem;position:relative}
-    .progress-bar .step{text-align:center;width:33.33%;position:relative}
-    .progress-bar .step .icon{height:40px;width:40px;border:2px solid var(--border-color);border-radius:50%;display:flex;justify-content:center;align-items:center;font-weight:500;background-color:#fff;margin:0 auto 0.5rem;transition:all 0.3s ease}
-    .progress-bar .step.active .icon{background-color:var(--primary-color);border-color:var(--primary-color);color:#fff}
-    .progress-bar .step p{font-size:0.9rem;font-weight:500;color:var(--secondary-color);transition:all 0.3s ease}
+    .progress-bar{display:flex;justify-content:space-between;list-style:none;margin:1.25rem 0 2rem;position:relative;padding:0 10px}
+    .progress-bar .step{width:25%;text-align:center;position:relative}
+    .progress-bar .icon{height:38px;width:38px;border:2px solid var(--border-color);border-radius:50%;display:flex;align-items:center;justify-content:center;background:#fff;margin:0 auto .35rem;font-weight:600;transition:.3s}
+    .progress-bar .step.active .icon{background:var(--primary-color);border-color:var(--primary-color);color:#fff}
+    .progress-bar .step p{font-size:.85rem;color:var(--secondary-color);transition:.3s}
     .progress-bar .step.active p{color:var(--primary-color)}
-    .progress-bar::before{content:'';position:absolute;top:20px;left:16.66%;width:66.66%;height:3px;background-color:var(--border-color);z-index:-1}
-    #progress-line{position:absolute;top:20px;left:16.66%;width:0%;height:3px;background-color:var(--primary-color);z-index:-1;transition:width 0.3s ease}
+    .progress-bar::before{content:"";position:absolute;top:19px;left:calc(12.5% + 19px);right:calc(12.5% + 19px);height:3px;background:var(--border-color);z-index:-1}
+    #progress-line{position:absolute;top:19px;left:calc(12.5% + 19px);height:3px;background:var(--primary-color);z-index:-1;width:0;transition:width .3s ease}
     .form-step{display:none}
-    .form-step.active{display:block;animation:fadeIn 0.5s ease-in-out}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-    .form-group{margin-bottom:1.5rem}
-    label{display:block;margin-bottom:0.5rem;font-weight:500}
-    input,select,textarea{width:100%;padding:0.75rem 1rem;border:1px solid var(--border-color);border-radius:8px;font-size:1rem;font-family:'Poppins',sans-serif;transition:border-color 0.2s,box-shadow 0.2s}
-    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary-color);box-shadow:0 0 0 3px rgba(0,123,255,0.15)}
-    input.invalid,select.invalid,textarea.invalid{border-color:var(--error-color);box-shadow:0 0 0 3px rgba(220,53,69,0.15)}
-    textarea{resize:vertical;min-height:100px}
-    .file-upload-area{border:2px dashed var(--border-color);border-radius:8px;padding:2rem;text-align:center;cursor:pointer;transition:border-color 0.2s,background-color 0.2s}
-    .file-upload-area:hover{border-color:var(--primary-color);background-color:#f8f9fa}
+    .form-step.active{display:block;animation:fade .45s ease}
+    @keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    .form-group{margin-bottom:1rem}
+    label{display:block;margin:0 0 .4rem;font-weight:500}
+    input,select,textarea{
+      width:100%;padding:.75rem 1rem;border:1px solid var(--border-color);border-radius:10px;font-size:1rem;transition:border-color .2s,box-shadow .2s;background:#fff
+    }
+    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary-color);box-shadow:0 0 0 3px rgba(0,123,255,.15)}
+    input.invalid,select.invalid,textarea.invalid{border-color:var(--error-color);box-shadow:0 0 0 3px rgba(220,53,69,.15)}
+    textarea{min-height:100px;resize:vertical}
+    .file-upload-area{
+      border:2px dashed var(--border-color);border-radius:10px;padding:1.25rem;text-align:center;cursor:pointer;transition:border-color .2s,background-color .2s
+    }
+    .file-upload-area:hover{border-color:var(--primary-color);background:#f8f9fa}
     .file-upload-area.invalid{border-color:var(--error-color)}
-    .file-upload-area .upload-icon{font-size:2.5rem;color:var(--primary-color)}
-    .file-upload-area p{margin-top:1rem;color:var(--secondary-color)}
     #photo-upload{display:none}
-    #photo-preview-container{margin-top:1rem;text-align:center;display:none}
+    #photo-preview-container{margin-top:.75rem;text-align:center;display:none}
     #photo-preview{max-width:150px;max-height:150px;border-radius:8px;border:1px solid var(--border-color)}
-    .button-group{display:flex;justify-content:space-between;margin-top:2.5rem}
-    .btn{padding:0.75rem 1.5rem;border:none;border-radius:8px;font-size:1rem;font-weight:500;cursor:pointer;transition:all 0.3s ease}
-    .btn-primary{background-color:var(--primary-color);color:#fff}
-    .btn-primary:hover{background-color:#0056b3;transform:translateY(-2px)}
-    .btn-secondary{background-color:var(--secondary-color);color:#fff}
-    .btn-secondary:hover{background-color:#5a6268}
-    .btn[disabled]{opacity:.6;cursor:not-allowed}
-    .spinner{width:16px;height:16px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;display:inline-block;margin-left:8px;animation:spin .9s linear infinite}
+    .button-group{display:flex;justify-content:flex-end;gap:.75rem;margin-top:1.5rem;flex-wrap:wrap}
+    .btn{padding:.75rem 1.25rem;border:none;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;transition:.25s}
+    .btn-primary{background:var(--primary-color);color:#fff}
+    .btn-primary:hover{transform:translateY(-1px)}
+    .btn-secondary{background:var(--secondary-color);color:#fff}
+    .btn-secondary:hover{transform:translateY(-1px)}
+    .submitting{display:flex;align-items:center;gap:.75rem;justify-content:center;color:var(--secondary-color);margin:1.25rem 0}
+    .spinner{width:22px;height:22px;border:3px solid #e9ecef;border-top-color:var(--primary-color);border-radius:50%;animation:spin 1s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
-    #thankyou-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:9999}
-    #thankyou-card{background:#fff;border-radius:14px;max-width:560px;width:90%;padding:28px;box-shadow:0 10px 30px rgba(0,0,0,.2);text-align:center}
-    #thankyou-card h3{margin-bottom:.5rem;font-family:'Poppins',sans-serif}
-    #thankyou-card p{color:#555;line-height:1.5}
-    #thankyou-close{margin-top:1rem;padding:.6rem 1.2rem;border:none;border-radius:8px;background:var(--primary-color);color:#fff;cursor:pointer}
-    #thankyou-close:hover{background:#0056b3}
-    @media (max-width:768px){#id-request-form{padding:2rem 1.5rem}.form-header h2{font-size:1.5rem}.progress-bar .step p{font-size:0.8rem}}
+    .success-box{border:1px solid #d4edda;background:#f1fff4;color:#155724;border-radius:12px;padding:1rem}
+    .error-box{border:1px solid #f8d7da;background:#fff5f6;color:#721c24;border-radius:12px;padding:1rem}
+    .muted{color:var(--secondary-color);font-size:.9rem}
+
+    /* Review */
+    .review-box{border:1px solid var(--border-color);background:#fff;border-radius:12px;padding:1rem;margin:.75rem 0}
+    .review-box p{margin:.35rem 0}
+    .review-photo{max-width:120px;max-height:120px;border:1px solid var(--border-color);border-radius:8px}
+
+    /* Required asterisk helper */
+    .req::after{content:" *"; color: var(--error-color); font-weight:600;}
+
+    @media (max-width:768px){#id-request-form{padding:1.5rem} .form-header h2{font-size:1.5rem} .progress-bar .step p{font-size:.8rem}}
   </style>
 </head>
 <body>
   <div class="form-container">
     <form id="id-request-form" novalidate>
       <div class="form-header">
-        <img src="https://i.postimg.cc/pTJQwfkV/USDC-Logo.png" alt="Company Logo" class="company-logo">
+        <img src="https://i.postimg.cc/pTJQwfkV/USDC-Logo.png" class="company-logo" alt="Company Logo"/>
         <h2>Company ID Request Form</h2>
         <p>Please fill out the form to request your new ID card.</p>
       </div>
+
+      <!-- Progress -->
       <ul class="progress-bar">
         <div id="progress-line"></div>
         <li class="step active"><div class="icon">1</div><p>Personal</p></li>
         <li class="step"><div class="icon">2</div><p>Contact</p></li>
         <li class="step"><div class="icon">3</div><p>Emergency</p></li>
+        <li class="step"><div class="icon">4</div><p>Finish</p></li>
       </ul>
-      <div class="form-step active">
-        <div class="form-group"><label for="entity">Entity</label><select id="entity" name="entity" required><option value="" disabled selected>Select your entity</option><option value="usdc">USDC</option><option value="learn-online">Learn Online</option></select></div>
-        <div class="form-group"><label for="name">Full Name</label><input type="text" id="name" name="name" placeholder="Enter your full name" required></div>
-        <div class="form-group"><label for="designation">Designation</label><input type="text" id="designation" name="designation" placeholder="e.g., Software Engineer" required></div>
-        <div class="form-group"><label for="emp-code">Employee Code</label><input type="text" id="emp-code" name="emp-code" placeholder="e.g., USDC12345" required></div>
+
+      <!-- STEP 1 -->
+      <div class="form-step active" data-step="1">
+        <div class="form-group">
+          <label for="entity">Entity</label>
+          <select id="entity" name="entity" required>
+            <option value="" disabled selected>Select your entity</option>
+            <option value="USDC">USDC</option>
+            <option value="Learn Online">Learn Online</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="name">Full Name</label>
+          <input type="text" id="name" name="name" required/>
+        </div>
+        <div class="form-group">
+          <label for="designation">Designation</label>
+          <input type="text" id="designation" name="designation" required/>
+        </div>
+        <div class="form-group">
+          <label for="emp-code">Employee Code</label>
+          <input type="text" id="emp-code" name="emp_code" placeholder="e.g., USDC12345" required/>
+        </div>
       </div>
-      <div class="form-step">
-        <div class="form-group"><label for="photo-upload">Photo (Passport Size)</label><label for="photo-upload" class="file-upload-area"><div class="upload-icon">⬆️</div><p><b>Click to upload</b> or drag and drop</p><p><small>PNG, JPG, or JPEG (MAX. 5MB)</small></p></label><input type="file" id="photo-upload" name="photo" accept="image/png, image/jpeg, image/jpg" required><div id="photo-preview-container"><img id="photo-preview" src="#" alt="Photo Preview"/></div></div>
-        <div class="form-group"><label for="contact-number">Personal Contact Number (10 digits)</label><input type="tel" id="contact-number" name="contact-number" placeholder="e.g., 9876543210" required pattern="[0-9]{10}" title="Please enter a 10-digit phone number."></div>
-        <div class="form-group"><label for="present-address">Present Address</label><textarea id="present-address" name="present-address" placeholder="Your current residential address" required></textarea></div>
-        <div class="form-group"><label for="office-address">Office Address</label><textarea id="office-address" name="office-address" placeholder="Your office location" required></textarea></div>
+
+      <!-- STEP 2 -->
+      <div class="form-step" data-step="2">
+        <div class="form-group">
+          <!-- add .req to show asterisk -->
+          <label for="photo-upload" class="req">Photo (Passport Size)</label>
+          <label for="photo-upload" class="file-upload-area">
+            <div class="upload-icon">⬆️</div>
+            <p><b>Click to upload</b> or drag and drop</p>
+            <p class="muted">PNG, JPG, or JPEG (MAX. 5MB)</p>
+          </label>
+          <input type="file" id="photo-upload" name="photo" accept="image/png,image/jpeg" required/>
+          <div id="photo-preview-container"><img id="photo-preview" alt="Preview"/></div>
+        </div>
+
+        <div class="form-group">
+          <label for="contact-number">Personal Contact Number (10 digits)</label>
+          <input type="tel" id="contact-number" name="contact_number" required pattern="[0-9]{10}" title="Please enter a 10-digit phone number."/>
+        </div>
+        <div class="form-group">
+          <label for="present-address">Present Address</label>
+          <textarea id="present-address" name="present_address" required></textarea>
+        </div>
+        <div class="form-group">
+          <label for="office-address">Office Address</label>
+          <textarea id="office-address" name="office_address" required></textarea>
+        </div>
       </div>
-      <div class="form-step">
-        <div class="form-group"><label for="blood-group">Blood Group</label><select id="blood-group" name="blood-group" required><option value="" disabled selected>Select blood group</option><option value="A+">A+</option><option value="A-">A-</option><option value="B+">B+</option><option value="B-">B-</option><option value="AB+">AB+</option><option value="AB-">AB-</option><option value="O+">O+</option><option value="O-">O-</option></select></div>
-        <div class="form-group"><label for="emergency-contact">Emergency Contact Number </label><input type="tel" id="emergency-contact" name="emergency-contact" placeholder="e.g., 9876543210" required pattern="[0-9]{10}" title="Please enter a 10-digit phone number."></div>
+
+      <!-- STEP 3 -->
+      <div class="form-step" data-step="3">
+        <div class="form-group">
+          <label for="blood-group">Blood Group</label>
+          <select id="blood-group" name="blood_group" required>
+            <option value="" disabled selected>Select blood group</option>
+            <option value="A+">A+</option><option value="A-">A-</option>
+            <option value="B+">B+</option><option value="B-">B-</option>
+            <option value="AB+">AB+</option><option value="AB-">AB-</option>
+            <option value="O+">O+</option><option value="O-">O-</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="emergency-contact">Emergency Contact Number</label>
+          <input type="tel" id="emergency-contact" name="emergency_contact" required pattern="[0-9]{10}" title="Please enter a 10-digit phone number."/>
+        </div>
       </div>
+
+      <!-- STEP 4 -->
+      <div class="form-step" data-step="4">
+        <!-- Review -->
+        <div id="review-state">
+          <h3 style="margin-bottom:.5rem;">Review Your Details</h3>
+          <div class="review-box">
+            <p><strong>Entity:</strong> <span id="review-entity"></span></p>
+            <p><strong>Full Name:</strong> <span id="review-name"></span></p>
+            <p><strong>Designation:</strong> <span id="review-designation"></span></p>
+            <p><strong>Employee Code:</strong> <span id="review-empcode"></span></p>
+            <p><strong>Photo:</strong><br><img id="review-photo" class="review-photo" alt="Photo"/></p>
+            <p><strong>Personal Contact:</strong> <span id="review-contact"></span></p>
+            <p><strong>Present Address:</strong> <span id="review-present"></span></p>
+            <p><strong>Office Address:</strong> <span id="review-office"></span></p>
+            <p><strong>Blood Group:</strong> <span id="review-blood"></span></p>
+            <p><strong>Emergency Contact:</strong> <span id="review-emergency"></span></p>
+          </div>
+          <p class="muted">Please confirm the above details before submitting.</p>
+        </div>
+
+        <!-- Submitting -->
+        <div id="submit-state" class="submitting" aria-live="polite" style="display:none">
+          <div class="spinner" role="progressbar" aria-label="Submitting"></div>
+          <span>Submitting… Please wait.</span>
+        </div>
+
+        <!-- Thank you -->
+        <div id="thankyou-state" style="display:none">
+          <div class="success-box">
+            <h3 style="margin-bottom:.5rem;">🎉 Thank you!</h3>
+            <p>Your request has been submitted successfully.</p>
+          </div>
+          <div class="button-group" style="justify-content:center;margin-top:1rem">
+            <button type="button" class="btn btn-secondary" id="new-entry-btn">New Entry</button>
+          </div>
+        </div>
+
+        <!-- Error -->
+        <div id="error-state" style="display:none">
+          <div class="error-box">
+            <h3 style="margin-bottom:.5rem;">❌ Something went wrong</h3>
+            <p id="error-text">Please try again.</p>
+          </div>
+          <div class="button-group" style="justify-content:center;margin-top:1rem">
+            <button type="button" class="btn btn-primary" id="retry-btn">Retry Submit</button>
+          </div>
+        </div>
+      </div>
+
       <div class="button-group">
         <button type="button" class="btn btn-secondary btn-prev">Previous</button>
         <button type="button" class="btn btn-primary btn-next">Next</button>
@@ -95,149 +224,256 @@
       </div>
     </form>
   </div>
-  <div id="thankyou-backdrop">
-    <div id="thankyou-card">
-      <h3>Thank you! 🎉</h3>
-      <p>Your ID request has been submitted. Our HR team will review and process your card. You’ll also receive an email notification.</p>
-      <button id="thankyou-close">Close</button>
-    </div>
-  </div>
-  <script>
-    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbz27TXe_qp3Q5fWPT12Mlzj22UsH-LKRvgB1zwXRvHs5oB3bJdWfL8om7WIdX4tCK8Oqw/exec';
 
-    document.addEventListener('DOMContentLoaded', function() {
-      const form = document.getElementById('id-request-form');
-      const formSteps = document.querySelectorAll('.form-step');
-      const prevBtn = document.querySelector('.btn-prev');
-      const nextBtn = document.querySelector('.btn-next');
-      const submitBtn = document.querySelector('.btn-submit');
-      const progressSteps = document.querySelectorAll('.progress-bar .step');
-      const progressLine = document.getElementById('progress-line');
-      const buttonGroup = document.querySelector('.button-group');
-      const thankYouModal = document.getElementById('thankyou-backdrop');
-      const thankYouCloseBtn = document.getElementById('thankyou-close');
-      const photoInput = document.getElementById('photo-upload');
-      const photoPreview = document.getElementById('photo-preview');
-      const photoPreviewContainer = document.getElementById('photo-preview-container');
+  <script>
+    // ======= CONFIG =======
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwMOxUVNrLqlSjhKbrL5wLQaKaHGoiv7JIJn7sHWxbGVI2MgZ1kg3kvbarBVA7PNdXc/exec";
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById("id-request-form");
+      const formSteps = Array.from(document.querySelectorAll(".form-step"));
+      const prevBtn = document.querySelector(".btn-prev");
+      const nextBtn = document.querySelector(".btn-next");
+      const submitBtn = document.querySelector(".btn-submit");
+      const progressSteps = Array.from(document.querySelectorAll(".progress-bar .step"));
+      const progressLine = document.getElementById("progress-line");
+      const buttonGroup = document.querySelector(".button-group");
+
+      const reviewState = document.getElementById("review-state");
+      const submitState = document.getElementById("submit-state");
+      const thankyouState = document.getElementById("thankyou-state");
+      const errorState = document.getElementById("error-state");
+
+      const photoUpload = document.getElementById("photo-upload");
       let currentStep = 0;
 
-      function updateFormView() {
-        formSteps.forEach((step, i) => step.classList.toggle('active', i === currentStep));
-        progressSteps.forEach((step, i) => step.classList.toggle('active', i <= currentStep));
-        const active = document.querySelectorAll('.progress-bar .step.active').length;
-        progressLine.style.width = active > 1 ? ((active - 1) / (progressSteps.length - 1)) * 50 + '%' : '0%';
-        prevBtn.style.display = currentStep === 0 ? 'none' : 'inline-block';
-        nextBtn.style.display = currentStep === formSteps.length - 1 ? 'none' : 'inline-block';
-        submitBtn.style.display = currentStep === formSteps.length - 1 ? 'inline-block' : 'none';
-        buttonGroup.style.justifyContent = currentStep === 0 ? 'flex-end' : 'space-between';
+      function updateProgress() {
+        formSteps.forEach((step, i) => step.classList.toggle("active", i === currentStep));
+        progressSteps.forEach((s, i) => s.classList.toggle("active", i <= currentStep));
+        const activeCount = document.querySelectorAll(".progress-bar .step.active").length;
+        const widthPct = ((activeCount - 1) / (progressSteps.length - 1)) * 100;
+        progressLine.style.width = (widthPct || 0) + "%";
+
+        prevBtn.style.display = currentStep === 0 ? "none" : "inline-block";
+        nextBtn.style.display = currentStep === formSteps.length - 1 ? "none" : "inline-block";
+        submitBtn.style.display = currentStep === formSteps.length - 1 ? "inline-block" : "none";
+        buttonGroup.style.justifyContent = "flex-end";
       }
 
       function validateStep() {
-        let ok = true;
-        formSteps[currentStep].querySelectorAll('[required]').forEach(el => {
-          if (!el.checkValidity()) { el.classList.add('invalid'); ok = false; } else { el.classList.remove('invalid'); }
-        });
-        return ok;
-      }
-
-      nextBtn.addEventListener('click', () => { if (validateStep() && currentStep < formSteps.length - 1) { currentStep++; updateFormView(); }});
-      prevBtn.addEventListener('click', () => { if (currentStep > 0) { currentStep--; updateFormView(); }});
-
-      photoInput.addEventListener('change', () => {
-        const f = photoInput.files && photoInput.files[0];
-        if (f) {
-          const r = new FileReader();
-          r.onload = e => { photoPreview.src = e.target.result; photoPreviewContainer.style.display = 'block'; };
-          r.readAsDataURL(f);
-        } else {
-          photoPreviewContainer.style.display = 'none';
-        }
-      });
-
-      async function fileToBase64(file) {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result); // data URL
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
-      }
-
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        if (!validateStep()) { alert('Please fill all required fields.'); return; }
-
-        const fileObj = (photoInput.files && photoInput.files[0]) ? photoInput.files[0] : null;
-        if (!fileObj) { alert('Please attach a valid photo.'); return; }
-
-        prevBtn.disabled = nextBtn.disabled = submitBtn.disabled = true;
-        const originalSubmitText = submitBtn.textContent;
-        submitBtn.textContent = 'Submitting...';
-        const spinner = document.createElement('span'); spinner.className = 'spinner'; submitBtn.appendChild(spinner);
-
-        // First attempt: multipart/form-data
-        const fd = new FormData(form);
-        fd.set('photo', fileObj, fileObj.name || 'photo.jpg');
-
-        async function sendMultipart() {
-          const res = await fetch(WEB_APP_URL, { method: 'POST', body: fd });
-          try { return await res.json(); } catch { return { status: 'error', message: 'parse' }; }
-        }
-        async function sendJSON() {
-          const b64 = await fileToBase64(fileObj);
-          const payload = {
-            _payloadType: 'jsonBase64',
-            entity: form.entity.value,
-            name: form.name.value,
-            designation: form['designation'].value,
-            'emp-code': form['emp-code'].value,
-            'contact-number': form['contact-number'].value,
-            'present-address': form['present-address'].value,
-            'office-address': form['office-address'].value,
-            'blood-group': form['blood-group'].value,
-            'emergency-contact': form['emergency-contact'].value,
-            photo_b64: b64,
-            photo_mime: fileObj.type || 'image/jpeg',
-            photo_name: fileObj.name || 'photo.jpg'
-          };
-          const res = await fetch(WEB_APP_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          });
-          return await res.json();
-        }
-
-        try {
-          let data = await sendMultipart();
-          // If backend still says no file, retry using JSON base64
-          if (!(data && data.status === 'success')) {
-            const msg = (data && data.message) ? String(data.message).toLowerCase() : '';
-            if (msg.includes('did not receive') || msg.includes('no valid file') || msg.includes('unsupported')) {
-              data = await sendJSON();
+        let valid = true;
+        const currentInputs = formSteps[currentStep].querySelectorAll("[required]");
+        currentInputs.forEach(input => {
+          if (input.checkValidity()) {
+            input.classList.remove("invalid");
+            if (input.id === "photo-upload") {
+              input.closest(".form-group").querySelector(".file-upload-area").classList.remove("invalid");
+            }
+          } else {
+            valid = false;
+            input.classList.add("invalid");
+            if (input.id === "photo-upload") {
+              input.closest(".form-group").querySelector(".file-upload-area").classList.add("invalid");
             }
           }
+        });
 
-          if (data.status === 'success') {
-            thankYouModal.style.display = 'flex';
-          } else {
-            alert('Error: ' + (data.message || 'Unknown error.'));
+        // EXTRA: hard enforce photo on Step 2 (index 1)
+        if (currentStep === 1) {
+          const fileEl = document.getElementById('photo-upload');
+          const area = fileEl.closest(".form-group").querySelector(".file-upload-area");
+          if (!fileEl.files || fileEl.files.length === 0) {
+            valid = false;
+            area.classList.add('invalid');
           }
-        } catch (err) {
-          console.error(err);
-          alert('Network or server error. Please try again.');
-        } finally {
-          submitBtn.disabled = false; submitBtn.textContent = originalSubmitText;
+        }
+        return valid;
+      }
+
+      function fillReview() {
+        document.getElementById("review-entity").textContent = document.getElementById("entity").value || "-";
+        document.getElementById("review-name").textContent = document.getElementById("name").value || "-";
+        document.getElementById("review-designation").textContent = document.getElementById("designation").value || "-";
+        document.getElementById("review-empcode").textContent = document.getElementById("emp-code").value || "-";
+        document.getElementById("review-contact").textContent = document.getElementById("contact-number").value || "-";
+        document.getElementById("review-present").textContent = document.getElementById("present-address").value || "-";
+        document.getElementById("review-office").textContent = document.getElementById("office-address").value || "-";
+        document.getElementById("review-blood").textContent = document.getElementById("blood-group").value || "-";
+        document.getElementById("review-emergency").textContent = document.getElementById("emergency-contact").value || "-";
+        // copy photo preview (if available)
+        const prev = document.getElementById("photo-preview");
+        const rev = document.getElementById("review-photo");
+        rev.src = prev && prev.src ? prev.src : "";
+        rev.style.display = rev.src ? "inline-block" : "none";
+      }
+
+      nextBtn.addEventListener("click", () => {
+        if (validateStep() && currentStep < formSteps.length - 1) {
+          currentStep++;
+          updateProgress();
+          if (currentStep === 3) {  // Step 4 index
+            fillReview();
+            reviewState.style.display = "block";
+            submitState.style.display = "none";
+            thankyouState.style.display = "none";
+            errorState.style.display = "none";
+          }
         }
       });
 
-      thankYouCloseBtn.addEventListener('click', () => {
-        thankYouModal.style.display = 'none'; form.reset(); currentStep = 0; updateFormView();
-        prevBtn.disabled = nextBtn.disabled = submitBtn.disabled = false;
-        photoPreviewContainer.style.display = 'none';
+      prevBtn.addEventListener("click", () => {
+        if (currentStep > 0) {
+          currentStep--;
+          updateProgress();
+        }
       });
 
-      updateFormView();
+      // Photo preview + drag&drop (with base64 capture)
+      const previewContainer = document.getElementById("photo-preview-container");
+      const previewImg = document.getElementById("photo-preview");
+      const fileUploadArea = document.querySelector(".file-upload-area");
+
+      photoUpload.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          previewImg.src = ev.target.result;
+          previewContainer.style.display = "block";
+          // remember base64 + name + type
+          window._photoDataUrl = ev.target.result;      // data:image/...;base64,....
+          window._photoName    = file.name;
+          window._photoType    = file.type;
+        };
+        reader.readAsDataURL(file);
+        fileUploadArea.classList.remove("invalid");
+      });
+
+      ["dragover","dragleave","drop"].forEach(evt => {
+        fileUploadArea.addEventListener(evt, (e) => e.preventDefault());
+      });
+      fileUploadArea.addEventListener("dragover", () => fileUploadArea.style.borderColor = "var(--primary-color)");
+      fileUploadArea.addEventListener("dragleave", () => fileUploadArea.style.borderColor = "var(--border-color)");
+      fileUploadArea.addEventListener("drop", (e) => {
+        fileUploadArea.style.borderColor = "var(--border-color)";
+        const files = e.dataTransfer.files;
+        if (files && files.length) {
+          photoUpload.files = files;
+          photoUpload.dispatchEvent(new Event("change"));
+        }
+      });
+
+      async function ensurePhotoBase64() {
+        if (window._photoDataUrl) return;
+        const file = photoUpload.files && photoUpload.files[0];
+        if (!file) return;
+        await new Promise((resolve) => {
+          const r = new FileReader();
+          r.onload = (ev) => {
+            window._photoDataUrl = ev.target.result;
+            window._photoName = file.name;
+            window._photoType = file.type;
+            resolve();
+          };
+          r.readAsDataURL(file);
+        });
+      }
+
+      async function submitToAppsScript() {
+        await ensurePhotoBase64(); // safety: make sure we have the base64
+
+        // Build FormData
+        const fd = new FormData(form);
+        fd.append("_timestamp", new Date().toISOString());
+        if (window._photoDataUrl) {
+          fd.append("photo_base64", window._photoDataUrl);
+          fd.append("photo_name", window._photoName || "photo.jpg");
+          fd.append("photo_type", window._photoType || "image/jpeg");
+        }
+
+        const res = await fetch(WEB_APP_URL, { method: "POST", body: fd });
+
+        let data;
+        try { data = await res.json(); }
+        catch { throw new Error("Unexpected response. Please check your Web App URL deployment."); }
+
+        if (!res.ok || !data.success) {
+          throw new Error((data && data.message) ? data.message : ("HTTP " + res.status));
+        }
+        return data;
+      }
+
+      function goToFinishSubmitting() {
+        reviewState.style.display = "none";
+        submitState.style.display = "flex";
+        thankyouState.style.display = "none";
+        errorState.style.display = "none";
+        prevBtn.style.display = "none";
+        nextBtn.style.display = "none";
+        submitBtn.style.display = "none";
+      }
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        // final safety check for required fields INCLUDING photo
+        const requiredIds = ['entity','name','designation','emp-code','photo-upload','contact-number','present-address','office-address','blood-group','emergency-contact'];
+        for (const id of requiredIds) {
+          const el = document.getElementById(id);
+          if (el && !el.checkValidity()) {
+            if (id === 'photo-upload') {
+              document.querySelector('.file-upload-area').classList.add('invalid');
+            }
+            alert("Please complete all required fields correctly before submitting.");
+            return;
+          }
+        }
+        // extra: if somehow no file present, block
+        if (!photoUpload.files || photoUpload.files.length === 0) {
+          document.querySelector('.file-upload-area').classList.add('invalid');
+          alert("Please upload a passport-size photo.");
+          return;
+        }
+
+        goToFinishSubmitting();
+
+        try {
+          await submitToAppsScript();
+          submitState.style.display = "none";
+          thankyouState.style.display = "block";
+        } catch (err) {
+          submitState.style.display = "none";
+          errorState.style.display = "block";
+          document.getElementById("error-text").textContent = err.message;
+        }
+      });
+
+      document.getElementById("retry-btn").addEventListener("click", async () => {
+        goToFinishSubmitting();
+        try {
+          await submitToAppsScript();
+          submitState.style.display = "none";
+          thankyouState.style.display = "block";
+        } catch (err) {
+          submitState.style.display = "none";
+          errorState.style.display = "block";
+          document.getElementById("error-text").textContent = err.message;
+        }
+      });
+
+      document.getElementById("new-entry-btn").addEventListener("click", () => {
+        form.reset();
+        document.getElementById("photo-preview-container").style.display = "none";
+        window._photoDataUrl = ""; window._photoName = ""; window._photoType = "";
+        currentStep = 0;
+        reviewState.style.display = "block";
+        submitState.style.display = "none";
+        thankyouState.style.display = "none";
+        errorState.style.display = "none";
+        updateProgress();
+      });
+
+      updateProgress();
     });
   </script>
 </body>
