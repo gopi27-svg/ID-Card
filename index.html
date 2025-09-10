@@ -120,7 +120,12 @@
           <label for="emp-code">Employee Code</label>
           <input type="text" id="emp-code" name="emp_code" placeholder="e.g., USDC12345" required/>
         </div>
-      </div>
+      
+<div class="form-group">
+  <label for="email">Email ID</label>
+  <input type="email" id="email" name="email" placeholder="e.g., user@example.com" required/>
+</div>
+</div>
 
       <!-- STEP 2 -->
       <div class="form-step" data-step="2">
@@ -178,7 +183,8 @@
             <p><strong>Full Name:</strong> <span id="review-name"></span></p>
             <p><strong>Designation:</strong> <span id="review-designation"></span></p>
             <p><strong>Employee Code:</strong> <span id="review-empcode"></span></p>
-            <p><strong>Photo:</strong><br><img id="review-photo" class="review-photo" alt="Photo"/></p>
+                        <p><strong>Email ID:</strong> <span id="review-email"></span></p>
+<p><strong>Photo:</strong><br><img id="review-photo" class="review-photo" alt="Photo"/></p>
             <p><strong>Personal Contact:</strong> <span id="review-contact"></span></p>
             <p><strong>Present Address:</strong> <span id="review-present"></span></p>
             <p><strong>Office Address:</strong> <span id="review-office"></span></p>
@@ -227,7 +233,7 @@
 
   <script>
     // ======= CONFIG =======
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwmwBSe_MVIVsYrNWMQThNObTM1FfAaRU0NcRo3jMfK4zCcdmKGOulBARBFI2JoJpzF/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzujsitb9GEi3bZF_3-Pw9tKbr9TfdUVxUapKYNM-3_H9MUD9EcuqtwZyp2o91PWYQ/exec";
 
     document.addEventListener("DOMContentLoaded", () => {
       const form = document.getElementById("id-request-form");
@@ -295,7 +301,8 @@
         document.getElementById("review-name").textContent = document.getElementById("name").value || "-";
         document.getElementById("review-designation").textContent = document.getElementById("designation").value || "-";
         document.getElementById("review-empcode").textContent = document.getElementById("emp-code").value || "-";
-        document.getElementById("review-contact").textContent = document.getElementById("contact-number").value || "-";
+                document.getElementById("review-email").textContent = document.getElementById("email").value || "-";
+document.getElementById("review-contact").textContent = document.getElementById("contact-number").value || "-";
         document.getElementById("review-present").textContent = document.getElementById("present-address").value || "-";
         document.getElementById("review-office").textContent = document.getElementById("office-address").value || "-";
         document.getElementById("review-blood").textContent = document.getElementById("blood-group").value || "-";
@@ -417,7 +424,7 @@
         e.preventDefault();
 
         // final safety check for required fields INCLUDING photo
-        const requiredIds = ['entity','name','designation','emp-code','photo-upload','contact-number','present-address','office-address','blood-group','emergency-contact'];
+        const requiredIds = ['entity', 'name', 'designation', 'emp-code',  'email', 'photo-upload', 'contact-number', 'present-address', 'office-address', 'blood-group', 'emergency-contact'];
         for (const id of requiredIds) {
           const el = document.getElementById(id);
           if (el && !el.checkValidity()) {
