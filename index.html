@@ -48,6 +48,7 @@
     input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary-color);box-shadow:0 0 0 3px rgba(0,123,255,.15)}
     input.invalid,select.invalid,textarea.invalid{border-color:var(--error-color);box-shadow:0 0 0 3px rgba(220,53,69,.15)}
     textarea{min-height:100px;resize:vertical}
+    textarea:read-only { background-color: #e9ecef; cursor: not-allowed; }
     .file-upload-area{
       border:2px dashed var(--border-color);border-radius:10px;padding:1.25rem;text-align:center;cursor:pointer;transition:border-color .2s,background-color .2s
     }
@@ -76,6 +77,15 @@
 
     /* Required asterisk helper */
     .req::after{content:" *"; color: var(--error-color); font-weight:600;}
+
+    /* Modal Styles */
+    .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;visibility:hidden;transition:opacity .3s, visibility .3s;}
+    .modal-overlay.show{opacity:1;visibility:visible;}
+    .modal-box{background:white;padding:2rem;border-radius:12px;max-width:400px;text-align:center;box-shadow:0 5px 15px rgba(0,0,0,.2);transform:scale(.9);transition:transform .3s;}
+    .modal-overlay.show .modal-box{transform:scale(1);}
+    .modal-box h3{margin-top:0;margin-bottom:1rem;font-size:1.5rem;}
+    .modal-box p{margin-bottom:1.5rem;}
+    .modal-close-btn{background:var(--primary-color);color:white;}
 
     @media (max-width:768px){#id-request-form{padding:1.5rem} .form-header h2{font-size:1.5rem} .progress-bar .step p{font-size:.8rem}}
   </style>
@@ -119,6 +129,7 @@
         <div class="form-group">
           <label for="emp-code">Employee Code</label>
           <input type="text" id="emp-code" name="emp_code" placeholder="e.g., USDC12345" required/>
+          <p class="muted" style="margin-top: .25rem;">Note: If you are unaware of the Employee Code, Refer to Qandle or contact HR. </p>
         </div>
       
 <div class="form-group">
@@ -130,7 +141,6 @@
       <!-- STEP 2 -->
       <div class="form-step" data-step="2">
         <div class="form-group">
-          <!-- add .req to show asterisk -->
           <label for="photo-upload" class="req">Photo (Passport Size)</label>
           <label for="photo-upload" class="file-upload-area">
             <div class="upload-icon">⬆️</div>
@@ -151,7 +161,7 @@
         </div>
         <div class="form-group">
           <label for="office-address">Office Address</label>
-          <textarea id="office-address" name="office_address" required></textarea>
+          <textarea id="office-address" name="office_address" required readonly>The High Street.5th Floor 11th main road, 4th Block East, Jayanagar, Bengaluru - 560011</textarea>
         </div>
       </div>
 
@@ -183,8 +193,8 @@
             <p><strong>Full Name:</strong> <span id="review-name"></span></p>
             <p><strong>Designation:</strong> <span id="review-designation"></span></p>
             <p><strong>Employee Code:</strong> <span id="review-empcode"></span></p>
-                        <p><strong>Email ID:</strong> <span id="review-email"></span></p>
-<p><strong>Photo:</strong><br><img id="review-photo" class="review-photo" alt="Photo"/></p>
+            <p><strong>Email ID:</strong> <span id="review-email"></span></p>
+            <p><strong>Photo:</strong><br><img id="review-photo" class="review-photo" alt="Photo"/></p>
             <p><strong>Personal Contact:</strong> <span id="review-contact"></span></p>
             <p><strong>Present Address:</strong> <span id="review-present"></span></p>
             <p><strong>Office Address:</strong> <span id="review-office"></span></p>
@@ -224,11 +234,20 @@
       </div>
 
       <div class="button-group">
-        <button type="button" class="btn btn-secondary btn-prev">Previous</button>
+        <button type="button" class="btn btn-secondary btn-prev" style="display: none;">Previous</button>
         <button type="button" class="btn btn-primary btn-next">Next</button>
-        <button type="submit" class="btn btn-primary btn-submit">Submit</button>
+        <button type="submit" class="btn btn-primary btn-submit" style="display: none;">Submit</button>
       </div>
     </form>
+  </div>
+
+  <!-- Photo Requirement Modal -->
+  <div class="modal-overlay" id="photo-modal">
+    <div class="modal-box">
+      <h3>Photo Requirement</h3>
+      <p>Please attach a clear and proper passport-size photo for your ID card.</p>
+      <button type="button" class="btn modal-close-btn" id="modal-close-btn">I Understand</button>
+    </div>
   </div>
 
   <script>
@@ -252,6 +271,11 @@
 
       const photoUpload = document.getElementById("photo-upload");
       let currentStep = 0;
+      
+      // Modal variables
+      const photoModal = document.getElementById("photo-modal");
+      const closeModalBtn = document.getElementById("modal-close-btn");
+      let hasShownPhotoPopup = false;
 
       function updateProgress() {
         formSteps.forEach((step, i) => step.classList.toggle("active", i === currentStep));
@@ -284,7 +308,6 @@
           }
         });
 
-        // EXTRA: hard enforce photo on Step 2 (index 1)
         if (currentStep === 1) {
           const fileEl = document.getElementById('photo-upload');
           const area = fileEl.closest(".form-group").querySelector(".file-upload-area");
@@ -301,13 +324,13 @@
         document.getElementById("review-name").textContent = document.getElementById("name").value || "-";
         document.getElementById("review-designation").textContent = document.getElementById("designation").value || "-";
         document.getElementById("review-empcode").textContent = document.getElementById("emp-code").value || "-";
-                document.getElementById("review-email").textContent = document.getElementById("email").value || "-";
-document.getElementById("review-contact").textContent = document.getElementById("contact-number").value || "-";
+        document.getElementById("review-email").textContent = document.getElementById("email").value || "-";
+        document.getElementById("review-contact").textContent = document.getElementById("contact-number").value || "-";
         document.getElementById("review-present").textContent = document.getElementById("present-address").value || "-";
         document.getElementById("review-office").textContent = document.getElementById("office-address").value || "-";
         document.getElementById("review-blood").textContent = document.getElementById("blood-group").value || "-";
         document.getElementById("review-emergency").textContent = document.getElementById("emergency-contact").value || "-";
-        // copy photo preview (if available)
+        
         const prev = document.getElementById("photo-preview");
         const rev = document.getElementById("review-photo");
         rev.src = prev && prev.src ? prev.src : "";
@@ -318,7 +341,13 @@ document.getElementById("review-contact").textContent = document.getElementById(
         if (validateStep() && currentStep < formSteps.length - 1) {
           currentStep++;
           updateProgress();
-          if (currentStep === 3) {  // Step 4 index
+
+          if (currentStep === 1 && !hasShownPhotoPopup) {
+            photoModal.classList.add("show");
+            hasShownPhotoPopup = true;
+          }
+
+          if (currentStep === 3) {
             fillReview();
             reviewState.style.display = "block";
             submitState.style.display = "none";
@@ -335,7 +364,14 @@ document.getElementById("review-contact").textContent = document.getElementById(
         }
       });
 
-      // Photo preview + drag&drop (with base64 capture)
+      // Modal close events
+      closeModalBtn.addEventListener("click", () => photoModal.classList.remove("show"));
+      photoModal.addEventListener("click", (e) => {
+        if (e.target === photoModal) {
+            photoModal.classList.remove("show");
+        }
+      });
+
       const previewContainer = document.getElementById("photo-preview-container");
       const previewImg = document.getElementById("photo-preview");
       const fileUploadArea = document.querySelector(".file-upload-area");
@@ -347,8 +383,7 @@ document.getElementById("review-contact").textContent = document.getElementById(
         reader.onload = (ev) => {
           previewImg.src = ev.target.result;
           previewContainer.style.display = "block";
-          // remember base64 + name + type
-          window._photoDataUrl = ev.target.result;      // data:image/...;base64,....
+          window._photoDataUrl = ev.target.result;
           window._photoName    = file.name;
           window._photoType    = file.type;
         };
@@ -387,9 +422,8 @@ document.getElementById("review-contact").textContent = document.getElementById(
       }
 
       async function submitToAppsScript() {
-        await ensurePhotoBase64(); // safety: make sure we have the base64
+        await ensurePhotoBase64();
 
-        // Build FormData
         const fd = new FormData(form);
         fd.append("_timestamp", new Date().toISOString());
         if (window._photoDataUrl) {
@@ -423,7 +457,6 @@ document.getElementById("review-contact").textContent = document.getElementById(
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        // final safety check for required fields INCLUDING photo
         const requiredIds = ['entity', 'name', 'designation', 'emp-code',  'email', 'photo-upload', 'contact-number', 'present-address', 'office-address', 'blood-group', 'emergency-contact'];
         for (const id of requiredIds) {
           const el = document.getElementById(id);
@@ -435,7 +468,7 @@ document.getElementById("review-contact").textContent = document.getElementById(
             return;
           }
         }
-        // extra: if somehow no file present, block
+        
         if (!photoUpload.files || photoUpload.files.length === 0) {
           document.querySelector('.file-upload-area').classList.add('invalid');
           alert("Please upload a passport-size photo.");
@@ -473,6 +506,7 @@ document.getElementById("review-contact").textContent = document.getElementById(
         document.getElementById("photo-preview-container").style.display = "none";
         window._photoDataUrl = ""; window._photoName = ""; window._photoType = "";
         currentStep = 0;
+        hasShownPhotoPopup = false; // Reset the popup flag for the new entry
         reviewState.style.display = "block";
         submitState.style.display = "none";
         thankyouState.style.display = "none";
